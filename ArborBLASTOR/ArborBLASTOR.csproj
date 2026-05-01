@@ -13,7 +13,7 @@
 
     <ItemGroup>
       <None Update="AuthKey_D8T6LX3N8V.p8">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 

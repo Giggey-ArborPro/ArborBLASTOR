@@ -35,18 +35,68 @@ ArborBLASTOR [options]
 
 ### Options
 
-| Flag              | Description                              |
-|-------------------|------------------------------------------|
-| `--token <value>` | APNs device token to send to             |
-| `--title <value>` | Notification title                       |
-| `--body  <value>` | Notification body                        |
-| `--help`, `-h`    | Show help message and exit               |
+| Flag                       | Description                                              |
+|----------------------------|----------------------------------------------------------|
+| `--token <value>`          | APNs device token to send to                             |
+| `--title <value>`          | Notification title                                       |
+| `--body  <value>`          | Notification body                                        |
+| `--push-type <type>`       | Push type to use (see [Push Types](#push-types) below)   |
+| `--cert <path>`            | Path to `.p8` auth key file (see [below](#cert-file))    |
+| `--list-push-types`        | Print all available push types and exit                  |
+| `--help`, `-h`             | Show help message and exit                               |
 
-If any of `--token`, `--title`, or `--body` are omitted, you will be prompted to enter them interactively.
+If any of `--token`, `--title`, `--body`, or `--push-type` are omitted, you will be prompted to enter them interactively. The interactive push-type prompt presents a numbered list to choose from.
+
+---
+
+## Cert File
+
+By default ArborBLASTOR looks for `AuthKey_D8T6LX3N8V.p8` **next to the compiled binary** (it is copied there automatically on build).
+
+Use `--cert` to point to a different `.p8` file at runtime:
+
+```powershell
+.\ArborBLASTOR --cert "C:\keys\AuthKey_MYKEY.p8" --token "abc123" --title "Hello" --body "World"
+```
+
+If the resolved cert file does not exist, the tool will print a clear error and exit rather than crashing with a cryptographic exception.
+
+---
+
+## Push Types
+
+| # | Type           | Description                                                  |
+|---|----------------|--------------------------------------------------------------|
+| 1 | `Alert`        | Standard visible notification with title and body *(default)*|
+| 2 | `Background`   | Silent background wake — no UI shown to the user             |
+| 3 | `Voip`         | VoIP call notification (requires VoIP token via `AddVoipToken`) |
+| 4 | `Location`     | Location push (used with significant-location updates)       |
+| 5 | `LiveActivity` | Live Activity update notification                            |
+| 6 | `Mdm`          | Mobile Device Management payload                             |
+
+List them at any time with:
+```powershell
+.\ArborBLASTOR --list-push-types
+```
 
 ---
 
 ## Examples
+
+**Specify push type via flag:**
+```powershell
+.\ArborBLASTOR --token "abc123def456" --title "Hello" --body "World" --push-type Alert
+```
+
+**Use a custom .p8 cert file:**
+```powershell
+.\ArborBLASTOR --cert "C:\keys\AuthKey_MYKEY.p8" --token "abc123def456" --title "Hello" --body "World"
+```
+
+**List all push types:**
+```powershell
+.\ArborBLASTOR --list-push-types
+```
 
 **Fully non-interactive:**
 ```powershell
@@ -73,8 +123,14 @@ If any of `--token`, `--title`, or `--body` are omitted, you will be prompted to
 ## Building & Running
 
 ```powershell
-# Build
-dotnet build ArborBLASTOR.sln
+# Build (current platform)
+dotnet build ArborBLASTOR/ArborBLASTOR.csproj
+
+# Build for Apple Silicon Mac
+dotnet build ArborBLASTOR/ArborBLASTOR.csproj -r osx-arm64
+
+# Publish self-contained binary for Apple Silicon Mac
+dotnet publish ArborBLASTOR/ArborBLASTOR.csproj -r osx-arm64 -c Release --self-contained
 
 # Run directly via dotnet
 dotnet run --project ArborBLASTOR/ArborBLASTOR.csproj -- --token "abc123" --title "Hello" --body "World"

@@ -35,12 +35,14 @@ if (args.Contains("--help") || args.Contains("-h"))
           --title      <title>          Notification title
           --body       <body>           Notification body
           --push-type  <type>           Push type (e.g. Alert, Background, Voip)
+          --cert       <path>           Path to .p8 auth key (defaults to AuthKey_D8T6LX3N8V.p8)
           --list-push-types             List all available push types and exit
           --help, -h                    Show this help message
 
         Examples:
           ArborBLASTOR --token abc123 --title "Hello" --body "World"
           ArborBLASTOR --token abc123 --push-type Background
+          ArborBLASTOR --cert ~/keys/AuthKey_ABC123.p8 --token abc123 --title "Hi" --body "Hey"
           ArborBLASTOR --list-push-types
           ArborBLASTOR                         (prompts for all values)
         """);
@@ -58,6 +60,18 @@ var token = GetArg(args, "--token");
 var title = GetArg(args, "--title");
 var body  = GetArg(args, "--body");
 var pushTypeArg = GetArg(args, "--push-type");
+var certArg = GetArg(args, "--cert");
+
+var certPath = !string.IsNullOrWhiteSpace(certArg)
+    ? certArg
+    : Path.Combine(AppContext.BaseDirectory, "AuthKey_D8T6LX3N8V.p8");
+
+if (!File.Exists(certPath))
+{
+    Console.WriteLine($"Error: .p8 cert file not found at \"{certPath}\".");
+    Console.WriteLine("Use --cert <path> to specify its location, or place AuthKey_D8T6LX3N8V.p8 next to the binary.");
+    return;
+}
 
 // ── Interactive prompts for missing values ──────────────────────────────────
 if (string.IsNullOrWhiteSpace(token))
@@ -110,7 +124,7 @@ else
 // ── Send ────────────────────────────────────────────────────────────────────
 var apns = ApnsClient.CreateUsingJwt(new HttpClient(), new ApnsJwtOptions
 {
-    CertFilePath = Path.Combine(AppContext.BaseDirectory, "AuthKey_D8T6LX3N8V.p8"),
+    CertFilePath = certPath,
     KeyId = "D8T6LX3N8V",
     TeamId = "BP42WMJ84Q",
     BundleId = "app.arborprousa.experimental",
