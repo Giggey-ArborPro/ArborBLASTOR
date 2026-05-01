@@ -1,0 +1,39 @@
+# Build output
+bin/
+obj/
+
+# .NET
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.ncrunchproject
+.vs/
+
+# Rider / JetBrains
+.idea/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+*.snupkg
+project.lock.json
+packages/
+nuget.config
+
+# Logs & temp
+*.log
+*.tmp
+*.cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ── Secrets – never commit these ──────────────────────────────────────────────
+*.p8
+*.p12
+*.pfx
+*.cer
+*.key
+
